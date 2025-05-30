@@ -1,40 +1,109 @@
+//Criado por Alexssandro de Souza Freitas.
+//Versão 1.0
+
 #include <stdio.h>
 
-// Desafio Batalha Naval - MateCheck
-// Este código inicial serve como base para o desenvolvimento do sistema de Batalha Naval.
-// Siga os comentários para implementar cada parte do desafio.
+#define TAM 10
+
+void imprimirTabuleiro(int tab[TAM][TAM]) {
+    for (int i = 0; i < TAM; i++) {
+        for (int j = 0; j < TAM; j++) {
+            printf("%d ", tab[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+void aplicarPadrao(int tab[TAM][TAM], int linha, int coluna, int padrao[3][5]) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 5; j++) {
+            int x = linha + i;
+            int y = coluna + j - 2;
+            if (x >= 0 && x < TAM && y >= 0 && y < TAM && padrao[i][j] == 1) {
+                tab[x][y] = 1;
+            }
+        }
+    }
+}
 
 int main() {
-    // Nível Novato - Posicionamento dos Navios
-    // Sugestão: Declare uma matriz bidimensional para representar o tabuleiro (Ex: int tabuleiro[5][5];).
-    // Sugestão: Posicione dois navios no tabuleiro, um verticalmente e outro horizontalmente.
-    // Sugestão: Utilize `printf` para exibir as coordenadas de cada parte dos navios.
+    int tabuleiro[TAM][TAM] = {0};    // 0 = vazio, 3 = navio
+    int ataques[TAM][TAM] = {0};      // 0 = não atacado, 1 = atacado
+    int acertos[TAM][TAM] = {0};      // 0 = não acertou navio, 1 = acertou navio
 
-    // Nível Aventureiro - Expansão do Tabuleiro e Posicionamento Diagonal
-    // Sugestão: Expanda o tabuleiro para uma matriz 10x10.
-    // Sugestão: Posicione quatro navios no tabuleiro, incluindo dois na diagonal.
-    // Sugestão: Exiba o tabuleiro completo no console, mostrando 0 para posições vazias e 3 para posições ocupadas.
+    // Posicionar navios (igual antes)
+    for (int i = 1; i <= 5; i++) tabuleiro[i][2] = 3;
+    for (int j = 4; j <= 7; j++) tabuleiro[7][j] = 3;
+    for (int k = 0; k < 3; k++) tabuleiro[k][k] = 3;
+    for (int k = 0; k < 4; k++) tabuleiro[6 + k][9 - k] = 3;
 
-    // Nível Mestre - Habilidades Especiais com Matrizes
-    // Sugestão: Crie matrizes para representar habilidades especiais como cone, cruz, e octaedro.
-    // Sugestão: Utilize estruturas de repetição aninhadas para preencher as áreas afetadas por essas habilidades no tabuleiro.
-    // Sugestão: Exiba o tabuleiro com as áreas afetadas, utilizando 0 para áreas não afetadas e 1 para áreas atingidas.
+    int cone[3][5] = {
+        {0, 0, 1, 0, 0},
+        {0, 1, 1, 1, 0},
+        {1, 1, 1, 1, 1}
+    };
+    int octaedro[3][5] = {
+        {0, 0, 1, 0, 0},
+        {0, 1, 1, 1, 0},
+        {0, 0, 1, 0, 0}
+    };
+    int cruz[3][5] = {
+        {0, 0, 1, 0, 0},
+        {1, 1, 1, 1, 1},
+        {0, 0, 1, 0, 0}
+    };
 
-    // Exemplos de exibição das habilidades:
-    // Exemplo para habilidade em cone:
-    // 0 0 1 0 0
-    // 0 1 1 1 0
-    // 1 1 1 1 1
-    
-    // Exemplo para habilidade em octaedro:
-    // 0 0 1 0 0
-    // 0 1 1 1 0
-    // 0 0 1 0 0
+    printf("Tabuleiro inicial com navios (3 = navio):\n");
+    imprimirTabuleiro(tabuleiro);
 
-    // Exemplo para habilidade em cruz:
-    // 0 0 1 0 0
-    // 1 1 1 1 1
-    // 0 0 1 0 0
+    char continuar = 's';
+    while (continuar == 's' || continuar == 'S') {
+        printf("Escolha a habilidade para atacar:\n");
+        printf("1 - Cone\n2 - Octaedro\n3 - Cruz\nOpcao: ");
+        int opcao;
+        scanf("%d", &opcao);
 
+        int linha, coluna;
+        printf("Digite a linha (0 a 9) para aplicar a habilidade: ");
+        scanf("%d", &linha);
+        printf("Digite a coluna (0 a 9) para aplicar a habilidade: ");
+        scanf("%d", &coluna);
+
+        if (linha < 0 || linha >= TAM || coluna < 0 || coluna >= TAM) {
+            printf("Posicao invalida!\n");
+            continue;
+        }
+
+        // Aplicar habilidade escolhida
+        switch (opcao) {
+            case 1: aplicarPadrao(ataques, linha, coluna, cone); break;
+            case 2: aplicarPadrao(ataques, linha, coluna, octaedro); break;
+            case 3: aplicarPadrao(ataques, linha, coluna, cruz); break;
+            default:
+                printf("Opcao invalida!\n");
+                continue;
+        }
+
+        // Verificar acertos (ataque = 1 e navio = 3)
+        for (int i = 0; i < TAM; i++) {
+            for (int j = 0; j < TAM; j++) {
+                if (ataques[i][j] == 1 && tabuleiro[i][j] == 3) {
+                    acertos[i][j] = 1;
+                }
+            }
+        }
+
+        printf("Tabuleiro de ataques (1 = area atacada):\n");
+        imprimirTabuleiro(ataques);
+
+        printf("Tabuleiro de acertos (1 = navio atingido):\n");
+        imprimirTabuleiro(acertos);
+
+        printf("Deseja atacar novamente? (s/n): ");
+        scanf(" %c", &continuar);
+    }
+
+    printf("Jogo finalizado!\n");
     return 0;
 }
